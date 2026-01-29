@@ -57,4 +57,10 @@ const App: React.FC = () => {
   );
 };
 
-export default App;
+export default function App() {
+  return (
+    <div style={{ padding: "40px", fontSize: "24px" }}>
+      Savita Global Industries – Website Loaded
+    </div>
+  );
+}
