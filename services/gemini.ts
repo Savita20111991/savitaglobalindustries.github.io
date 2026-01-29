@@ -17,12 +17,25 @@ export const generateProductDescription = async (productName: string, category: 
   }
 };
 
+export const generateQuotationReply = async (inquiry: { name: string, message: string, product?: string }) => {
+  const ai = getAI();
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `Draft a professional, warm, and corporate export quotation follow-up email for a client named ${inquiry.name} who inquired about ${inquiry.product || 'our industrial products'}. Their message was: "${inquiry.message}". Keep it concise and professional.`
+    });
+    return response.text || "Thank you for your inquiry. Our team will get back to you with a detailed quote shortly.";
+  } catch (error) {
+    return "Thank you for your interest in Savita Global. We have received your inquiry.";
+  }
+};
+
 export const translateText = async (text: string, targetLanguage: string) => {
   const ai = getAI();
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: `Translate the following text into ${targetLanguage}. Maintain the professional industrial tone: "${text}"`
+      contents: `Translate the following industrial text into ${targetLanguage}. Maintain the professional corporate tone: "${text}"`
     });
     return response.text || text;
   } catch (error) {

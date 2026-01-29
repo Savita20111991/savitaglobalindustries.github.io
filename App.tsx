@@ -9,6 +9,7 @@ import Products from './pages/Products';
 import ExportMarkets from './pages/ExportMarkets';
 import Contact from './pages/Contact';
 import AdminPanel from './pages/AdminPanel';
+import Quality from './pages/Quality';
 import Chatbot from './components/Chatbot';
 import WhatsAppButton from './components/WhatsAppButton';
 
@@ -49,7 +50,7 @@ const App: React.FC = () => {
           <Route path="/export" element={<ExportMarkets />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/admin" element={<AdminPanel />} />
-          <Route path="/quality" element={<div className="py-40 text-center text-4xl font-bold">Quality & Certifications Page</div>} />
+          <Route path="/quality" element={<Quality />} />
         </Routes>
       </Layout>
     </Router>

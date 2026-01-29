@@ -1,19 +1,34 @@
 
 import React, { useState } from 'react';
 import { CATEGORIES, INITIAL_PRODUCTS, INITIAL_LEADERSHIP } from '../constants';
-import { generateProductDescription } from '../services/gemini';
+import { generateProductDescription, generateQuotationReply } from '../services/gemini';
 
 const AdminPanel: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [products, setProducts] = useState(INITIAL_PRODUCTS);
   const [leadership, setLeadership] = useState(INITIAL_LEADERSHIP);
-  const [activeTab, setActiveTab] = useState<'products' | 'leadership' | 'analytics'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'leadership' | 'inquiries' | 'analytics'>('products');
+  const [aiReply, setAiReply] = useState<string | null>(null);
+  const [isGeneratingReply, setIsGeneratingReply] = useState(false);
+
+  // Mock Inquiries
+  const [inquiries] = useState([
+    { id: '1', name: 'James Wilson', email: 'j.wilson@globalmkt.com', product: 'Industrial CNC Lathe', message: 'Interested in bulk pricing for 10 units to Dubai.', status: 'Pending' },
+    { id: '2', name: 'Ahmed Khan', email: 'ahmed@indus.sa', product: 'Precision Brass Valve', message: 'Do you provide certificate of origin for Saudi Arabia?', status: 'Replied' },
+  ]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (password === 'admin123') setIsAuthenticated(true);
     else alert('Invalid Credentials');
+  };
+
+  const handleGenerateReply = async (inquiry: any) => {
+    setIsGeneratingReply(true);
+    const reply = await generateQuotationReply(inquiry);
+    setAiReply(reply);
+    setIsGeneratingReply(false);
   };
 
   if (!isAuthenticated) {
@@ -48,7 +63,7 @@ const AdminPanel: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-50 flex">
       {/* Sidebar */}
-      <aside className="w-64 bg-slate-900 text-white flex flex-col">
+      <aside className="w-64 bg-slate-900 text-white flex flex-col sticky top-0 h-screen">
         <div className="p-8 border-b border-slate-800">
           <div className="font-bold text-xl">Savita Admin</div>
           <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-1">Management Portal</p>
@@ -56,6 +71,7 @@ const AdminPanel: React.FC = () => {
         <nav className="flex-1 p-4 space-y-2">
           {[
             { id: 'products', label: 'Products', icon: '📦' },
+            { id: 'inquiries', label: 'Inquiries', icon: '✉️' },
             { id: 'leadership', label: 'Leadership', icon: '👤' },
             { id: 'analytics', label: 'Analytics', icon: '📈' },
           ].map((item) => (
@@ -129,11 +145,57 @@ const AdminPanel: React.FC = () => {
           </div>
         )}
 
+        {activeTab === 'inquiries' && (
+           <div className="space-y-8">
+             <h2 className="text-3xl font-bold text-slate-900">Quotation Inquiries</h2>
+             <div className="grid grid-cols-1 gap-6">
+                {inquiries.map((inq) => (
+                  <div key={inq.id} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <div className="flex items-center gap-2">
+                           <span className="font-bold text-slate-900">{inq.name}</span>
+                           <span className="bg-blue-100 text-blue-600 text-[10px] px-2 py-0.5 rounded font-bold">{inq.status}</span>
+                        </div>
+                        <p className="text-xs text-slate-500">{inq.email}</p>
+                      </div>
+                      <button 
+                        onClick={() => handleGenerateReply(inq)}
+                        className="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-xs font-bold hover:bg-blue-700"
+                      >
+                        AI Draft Reply
+                      </button>
+                    </div>
+                    <div className="bg-slate-50 p-4 rounded-xl text-sm italic text-slate-600 border border-slate-100">
+                      "{inq.message}"
+                      <p className="mt-2 text-[10px] not-italic font-bold text-slate-400">PRODUCT: {inq.product}</p>
+                    </div>
+                  </div>
+                ))}
+             </div>
+
+             {aiReply && (
+               <div className="bg-blue-900 p-8 rounded-2xl text-white animate-slide-up">
+                 <div className="flex justify-between items-center mb-6">
+                    <h3 className="font-bold">AI-Generated Quotation Reply</h3>
+                    <button onClick={() => setAiReply(null)} className="text-xl">×</button>
+                 </div>
+                 <pre className="whitespace-pre-wrap text-sm text-blue-100 bg-white/5 p-6 rounded-xl border border-white/10 font-sans leading-relaxed">
+                   {aiReply}
+                 </pre>
+                 <div className="mt-6 flex gap-4">
+                   <button className="bg-white text-blue-900 px-6 py-2 rounded-lg font-bold text-xs">Copy to Clipboard</button>
+                   <button className="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold text-xs border border-white/20">Send via Email</button>
+                 </div>
+               </div>
+             )}
+           </div>
+        )}
+
         {activeTab === 'leadership' && (
           <div className="space-y-12">
              <h2 className="text-3xl font-bold text-slate-900">Authority Profiles</h2>
              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-               {/* CEO Manager */}
                <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
                  <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
                    <span className="text-blue-600">👔</span> CEO Settings
@@ -150,7 +212,6 @@ const AdminPanel: React.FC = () => {
                     <button className="w-full bg-slate-900 text-white py-2 rounded font-bold text-sm">Save Changes</button>
                  </div>
                </div>
-               {/* Ops Manager */}
                <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
                  <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
                    <span className="text-blue-600">⚙️</span> Operations Head Settings

@@ -5,6 +5,7 @@ import Logo from './Logo';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isTranslating, setIsTranslating] = useState(false);
   const location = useLocation();
 
   const navLinks = [
@@ -16,6 +17,15 @@ const Navbar: React.FC = () => {
     { name: 'Contact', path: '/contact' },
   ];
 
+  const handleTranslate = () => {
+    setIsTranslating(true);
+    // Simulate AI detection and translation
+    setTimeout(() => {
+      alert("AI Language Support: Auto-detected English. Translating components to 200+ languages currently limited to simulated demonstration in this UI.");
+      setIsTranslating(false);
+    }, 1000);
+  };
+
   return (
     <nav className="sticky top-0 z-50 bg-white shadow-md border-b border-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -24,7 +34,7 @@ const Navbar: React.FC = () => {
             <Logo />
           </Link>
           
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-6">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
@@ -38,15 +48,25 @@ const Navbar: React.FC = () => {
                 {link.name}
               </Link>
             ))}
+            
+            <button 
+              onClick={handleTranslate}
+              className="flex items-center gap-2 bg-slate-50 hover:bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200 transition-all text-xs font-bold text-slate-600"
+            >
+              <span className={isTranslating ? 'animate-spin' : ''}>🌐</span>
+              {isTranslating ? 'AI Translating...' : 'Language'}
+            </button>
+
             <Link 
               to="/admin" 
-              className="bg-slate-100 text-slate-700 px-4 py-2 rounded-md text-xs font-bold hover:bg-slate-200 transition-all"
+              className="bg-slate-900 text-white px-4 py-2 rounded-md text-xs font-bold hover:bg-blue-700 transition-all"
             >
               ADMIN
             </Link>
           </div>
 
-          <div className="md:hidden flex items-center">
+          <div className="md:hidden flex items-center gap-4">
+             <button onClick={handleTranslate} className="text-xl">🌐</button>
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="text-slate-600 hover:text-blue-600 focus:outline-none"
